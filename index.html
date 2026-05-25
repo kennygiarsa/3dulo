@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3dulo — Premium 3D Printed Padel Accessories</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #050505; color: #e5e5e5; overflow-x: hidden; }
+
+    @keyframes slideInUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 0.08; transform: scale(1); }
+      50% { opacity: 0.12; transform: scale(1.1); }
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes toastIn {
+      from { transform: translateX(100%) scale(0.9); opacity: 0; }
+      to { transform: translateX(0) scale(1); opacity: 1; }
+    }
+    @keyframes toastOut {
+      from { transform: translateX(0) scale(1); opacity: 1; }
+      to { transform: translateX(100%) scale(0.9); opacity: 0; }
+    }
+    @keyframes countBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+    }
+
+    .animate-in { animation: slideInUp 0.6s ease-out forwards; opacity: 0; }
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+    .animate-delay-4 { animation-delay: 0.4s; }
+    .animate-delay-5 { animation-delay: 0.5s; }
+    .float-anim { animation: float 5s ease-in-out infinite; }
+
+    .glow-orb {
+      position: absolute; border-radius: 50%; filter: blur(120px); mix-blend-mode: screen;
+      animation: pulse-slow 6s ease-in-out infinite;
+    }
+
+    .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-4px); }
+    .card-hover:hover .card-img { transform: scale(1.05); }
+    .card-img { transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    .btn-primary {
+      background: linear-gradient(to right, #047857, #059669);
+      box-shadow: 0 0 30px rgba(4,120,87,0.4);
+      transition: all 0.3s;
+    }
+    .btn-primary:hover { box-shadow: 0 0 50px rgba(0,255,196,0.4); transform: translateY(-1px); }
+
+    .btn-glass {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+    .btn-glass:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+
+    .color-swatch {
+      width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.2s;
+      position: relative;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.active { border-color: #00ffc4; box-shadow: 0 0 12px rgba(0,255,196,0.4); }
+    .color-swatch.active::after {
+      content: ''; position: absolute; inset: -5px; border-radius: 50%;
+      border: 1px solid rgba(0,255,196,0.3);
+    }
+
+    .grid-bg {
+      background-image: linear-gradient(to right, #80808008 1px, transparent 1px), linear-gradient(to bottom, #80808008 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .mask-fade-x {
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+
+    .cart-panel {
+      position: fixed; top: 0; right: 0; width: 100%; max-width: 420px; height: 100vh;
+      background: #0a0a0a; border-left: 1px solid rgba(255,255,255,0.08);
+      z-index: 100; transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cart-panel.open { transform: translateX(0); }
+
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    .toast-container { position: fixed; top: 100px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: #1A1D21; border: 1px solid rgba(0,255,196,0.2); border-radius: 12px;
+      padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+      animation: toastIn 0.4s ease-out forwards; min-width: 280px;
+      box-shadow: 0 0 30px rgba(0,255,196,0.1);
+    }
+    .toast.removing { animation: toastOut 0.3s ease-in forwards; }
+
+    .badge-bounce { animation: countBounce 0.3s ease-out; }
+
+    .product-section { opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+    .product-section.visible { opacity: 1; transform: translateY(0); }
+
+    .qty-btn {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; color: #e5e5e5; cursor: pointer; transition: all 0.2s; font-size: 16px;
+    }
+    .qty-btn:hover { background: rgba(255,255,255,0.1); }
+
+    .nav-link { position: relative; }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px;
+      background: #00ffc4; transition: width 0.3s;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .star { color: #fbbf24; }
+
+    @media (max-width: 768px) {
+      .cart-panel { max-width: 100%; }
+    }
+  </style>
+</head>
+<body class="grid-bg">
+
+  <!-- Background Orbs -->
+  <div class="glow-orb bg-emerald-500" style="width:600px;height:600px;top:-200px;left:-200px;opacity:0.06;"></div>
+  <div class="glow-orb bg-teal-500" style="width:500px;height:500px;bottom:20%;right:-150px;opacity:0.05;animation-delay:2s;"></div>
+  <div class="glow-orb bg-cyan-500" style="width:400px;height:400px;top:50%;left:30%;opacity:0.04;animation-delay:4s;"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Cart Overlay -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+  <!-- Cart Panel -->
+  <div class="cart-panel" id="cartPanel">
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between p-6 border-b border-white/[0.08]">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-[#00ffc4]"></i>
+          <span class="text-lg font-semibold">Keranjang</span>
+          <span id="cartPanelCount" class="text-xs bg-[#00ffc4] text-black font-bold px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <button onclick="toggleCart()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="cartItems" class="flex-1 overflow-y-auto scrollbar-hide p-6 space-y-4">
+        <div id="emptyCart" class="flex flex-col items-center justify-center h-full text-neutral-500">
+          <i data-lucide="package-open" class="w-16 h-16 mb-4 opacity-30"></i>
+          <p class="text-lg font-medium mb-1">Keranjang kosong</p>
+          <p class="text-sm">Yuk mulai belanja!</p>
+        </div>
+      </div>
+      <div id="cartFooter" class="border-t border-white/[0.08] p-6 hidden">
+        <div class="flex justify-between mb-2 text-sm text-neutral-400">
+          <span>Subtotal</span>
+          <span id="cartSubtotal">Rp 0</span>
+        </div>
+        <div class="flex justify-between mb-4 text-sm text-neutral-400">
+          <span>Ongkos kirim</span>
+          <span class="text-[#00ffc4]">Gratis</span>
+        </div>
+        <div class="flex justify-between mb-6 text-lg font-semibold">
+          <span>Total</span>
+          <span id="cartTotal" class="text-[#00ffc4]">Rp 0</span>
+        </div>
+        <button onclick="checkout()" class="w-full btn-primary text-white font-medium py-3.5 rounded-xl text-base">
+          Checkout Sekarang
+        </button>
+        <p class="text-center text-xs text-neutral-500 mt-3">Gratis ongkir ke seluruh Indonesia 🇮🇩</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/[0.05]">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2">
+           <img src="./asset/logo.png" alt="logo" class="w-10 h-1- rounded-lg">
+        <span class="text-xl font-bold tracking-tight">3dulo</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#products" class="nav-link text-sm text-neutral-400 hover:text-white transition-colors">Produk</a>
+        <a href="#bestseller" class="nav-link text-sm text-neutral-400 hover:text-white transition-colors">Best Seller</a>
+        <a href="#colors" class="nav-link text-sm text-neutral-400 hover:text-white transition-colors">Color</a>
+        <a href="#reviews" class="nav-link text-sm text-neutral-400 hover:text-white transition-colors">Review</a>
+        <a href="#faq" class="nav-link text-sm text-neutral-400 hover:text-white transition-colors">FAQ</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleCart()" class="relative w-10 h-10 flex items-center justify-center rounded-xl btn-glass">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <span id="cartBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-[#00ffc4] text-black text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+        </button>
+        <button class="md:hidden w-10 h-10 flex items-center justify-center rounded-xl btn-glass" onclick="toggleMobileMenu()">
+          <i data-lucide="menu" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="md:hidden hidden border-t border-white/[0.05] px-6 py-4 space-y-3">
+      <a href="#products" class="block text-sm text-neutral-400 hover:text-white py-2" onclick="toggleMobileMenu()">Produk</a>
+      <a href="#bestseller" class="block text-sm text-neutral-400 hover:text-white py-2" onclick="toggleMobileMenu()">Best Seller</a>
+      <a href="#colors" class="block text-sm text-neutral-400 hover:text-white py-2" onclick="toggleMobileMenu()">Warna</a>
+      <a href="#reviews" class="block text-sm text-neutral-400 hover:text-white py-2" onclick="toggleMobileMenu()">Review</a>
+      <a href="#faq" class="block text-sm text-neutral-400 hover:text-white py-2" onclick="toggleMobileMenu()">FAQ</a>
+    </div>
+  </nav>
+
+  <!-- Announcement Bar -->
+  <div class="bg-gradient-to-r from-[#047857]/20 via-[#00ffc4]/10 to-[#047857]/20 border-b border-[#00ffc4]/10">
+    <div class="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-center gap-2 text-sm">
+      <i data-lucide="truck" class="w-4 h-4 text-[#00ffc4]"></i>
+      <span class="text-neutral-300">Gratis Ongkir Seluruh Indonesia — <span class="text-[#00ffc4] font-medium">Gunakan kode: 3DULO2026</span></span>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-24 md:pt-24 md:pb-32 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div>
+          <div class="animate-in animate-delay-1 inline-flex items-center gap-2 bg-[#00ffc4]/10 text-[#00ffc4] border border-[#00ffc4]/20 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] mb-6">
+            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+            #1 Padel Accessory di Indonesia
+          </div>
+          <h1 class="animate-in animate-delay-2 text-4xl md:text-5xl lg:text-[3.5rem] font-semibold leading-[1.1] tracking-tight mb-6">
+            Aksesoris Raket Padel
+            <span class="block mt-2 bg-gradient-to-r from-[#00ffc4] to-[#047857] bg-clip-text text-transparent">
+              <em class="font-['Playfair_Display'] not-italic">Premium 3D Print</em>
+            </span>
+          </h1>
+          <p class="animate-in animate-delay-3 text-lg text-neutral-400 leading-relaxed mb-8 max-w-lg">
+            Desain eksklusif, presisi tinggi, dan material berkualitas. Temukan wall mount & desk stand terbaik untuk raket padel kamu.
+          </p>
+          <div class="animate-in animate-delay-4 flex flex-wrap gap-4">
+            <a href="#products" class="btn-primary text-white font-medium px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+              Lihat Produk
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="#bestseller" class="btn-glass text-white font-medium px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+              <i data-lucide="flame" class="w-4 h-4 text-orange-400"></i>
+              Best Seller
+            </a>
+          </div>
+          <div class="animate-in animate-delay-5 mt-10 flex items-center gap-8">
+            <div>
+              <div class="text-2xl font-bold text-white">2,500+</div>
+              <div class="text-xs text-neutral-500">Produk Terjual</div>
+            </div>
+            <div class="w-px h-10 bg-white/10"></div>
+            <div>
+              <div class="text-2xl font-bold text-white">4.9<span class="text-[#00ffc4]">★</span></div>
+              <div class="text-xs text-neutral-500">Rating Rata-rata</div>
+            </div>
+            <div class="w-px h-10 bg-white/10"></div>
+            <div>
+              <div class="text-2xl font-bold text-white">9+</div>
+              <div class="text-xs text-neutral-500">Pilihan Warna</div>
+            </div>
+          </div>
+        </div>
+        <div class="relative animate-in animate-delay-3">
+          <div class="relative rounded-[32px] overflow-hidden border border-white/[0.08] bg-[#0a0a0a] shadow-[0_0_60px_rgba(0,255,196,0.08)]">
+            <img src="./asset/tripletake.png" alt="tripletake" class="w-full aspect-[4/3] object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
+            <div class="absolute bottom-6 left-6 right-6">
+              <div class="bg-black/60 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs text-[#00ffc4] font-semibold uppercase tracking-wider">Koleksi Terbaru</p>
+                    <p class="text-white font-medium mt-0.5">Triple Take Wall Mount</p>
+                  </div>
+                  <div class="flex -space-x-2">
+                    <span class="w-6 h-6 rounded-full bg-[#111] border-2 border-black"></span>
+                    <span class="w-6 h-6 rounded-full bg-white border-2 border-black"></span>
+                    <span class="w-6 h-6 rounded-full bg-[#a8856c] border-2 border-black"></span>
+                    <span class="w-6 h-6 rounded-full bg-[#b8b8b8] border-2 border-black"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Floating badge -->
+          <div class="absolute -top-4 -right-4 float-anim bg-[#1A1D21] border border-white/10 rounded-2xl px-4 py-3 shadow-[0_0_30px_rgba(0,255,196,0.15)]">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-[#00ffc4]/20 rounded-lg flex items-center justify-center">
+                <i data-lucide="printer" class="w-4 h-4 text-[#00ffc4]"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-neutral-500 uppercase tracking-wider">Teknologi</p>
+                <p class="text-xs font-semibold text-white">3D Print FDM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Seller Section -->
+  <section id="bestseller" class="relative py-24 product-section">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] mb-4">
+          <i data-lucide="flame" class="w-3 h-3 fill-current"></i>
+          Paling Laris
+        </div>
+        <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Produk <span class="bg-gradient-to-r from-[#00ffc4] to-[#047857] bg-clip-text text-transparent">Best Seller</span></h2>
+        <p class="text-neutral-400 text-lg max-w-2xl mx-auto">Dua produk unggulan yang sudah dibeli ribuan pemain padel di seluruh Indonesia</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Product 1: Wall Mount -->
+        <div class="card-hover rounded-[24px] border border-white/[0.06] bg-[#0a0a0a] overflow-hidden group">
+          <div class="relative overflow-hidden bg-gradient-to-br from-[#0f0f0f] to-[#111] p-8 md:p-12 flex items-center justify-center">
+            <img src="./asset/wallmount.png" alt="Wall Mount Hanger Raket Padel" class="card-img w-full max-w-[360px] rounded-xl shadow-2xl" style="filter: brightness(0.9) contrast(1.1);">
+            <div class="absolute top-4 left-4 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-1">
+              <i data-lucide="flame" class="w-3 h-3 fill-current"></i> #1 Best Seller
+            </div>
+            <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/10">
+              ★ 4.9 (1,280)
+            </div>
+          </div>
+          <div class="p-6 md:p-8">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="text-xs text-[#00ffc4] font-semibold uppercase tracking-wider mb-1">Wall Mount</p>
+                <h3 class="text-xl font-semibold text-white">Wall Mount Hanger Raket Padel</h3>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold text-white">Rp 45<span class="text-lg">.000</span></p>
+                <p class="text-xs text-neutral-500 line-through">Rp 120.000</p>
+              </div>
+            </div>
+            <p class="text-sm text-neutral-400 mb-5 leading-relaxed">Tempel di dinding kamar, garasi, atau ruang padel. Design minimalis dengan holder kuat yang menahan raket dengan aman.</p>
+
+            <!-- Color Selection -->
+            <div class="mb-5">
+              <p class="text-xs text-neutral-500 mb-2.5 uppercase tracking-wider font-medium">Pilih Warna</p>
+              <div class="flex flex-wrap gap-2.5" id="wallMountColors">
+                <button class="color-swatch active" style="background:#1a1a1a;" data-color="Hitam Doff" data-product="wallmount" onclick="selectColor(this)" title="Hitam Doff"></button>
+                <button class="color-swatch" style="background:#111; box-shadow: inset 0 -8px 12px rgba(255,255,255,0.15);" data-color="Black Glossy" data-product="wallmount" onclick="selectColor(this)" title="Black Glossy"></button>
+                <button class="color-swatch" style="background:#ffffff;" data-color="White" data-product="wallmount" onclick="selectColor(this)" title="White"></button>
+                <button class="color-swatch" style="background:#b8b8b8;" data-color="Light Grey" data-product="wallmount" onclick="selectColor(this)" title="Light Grey"></button>
+                <button class="color-swatch" style="background:#a8856c;" data-color="Wood" data-product="wallmount" onclick="selectColor(this)" title="Wood"></button>
+                <button class="color-swatch" style="background:#c2685a;" data-color="Coral Pink" data-product="wallmount" onclick="selectColor(this)" title="Coral Pink"></button>
+                <button class="color-swatch" style="background:#6b4c6e;" data-color="Black Purple" data-product="wallmount" onclick="selectColor(this)" title="Black Purple"></button>
+                <button class="color-swatch" style="background:#b87333;" data-color="Copper" data-product="wallmount" onclick="selectColor(this)" title="Copper"></button>
+                <button class="color-swatch" style="background: linear-gradient(135deg, #e0d5c8, #c4b5a3, #d8ccc0);" data-color="Marble" data-product="wallmount" onclick="selectColor(this)" title="Marble"></button>
+              </div>
+              <p class="text-xs text-neutral-500 mt-2">Dipilih: <span id="wallMountColorName" class="text-neutral-300">Hitam Doff</span></p>
+            </div>
+
+            <!-- Quantity & Add to Cart -->
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 bg-white/[0.03] rounded-xl border border-white/[0.08] px-1 py-1">
+                <button class="qty-btn" onclick="changeQty('wallmount-qty', -1)">−</button>
+                <span id="wallmount-qty" class="w-8 text-center text-sm font-medium">1</span>
+                <button class="qty-btn" onclick="changeQty('wallmount-qty', 1)">+</button>
+              </div>
+              <button onclick="addToCart('Wall Mount Hanger Raket Padel', 89000, 'wallmount')" class="flex-1 btn-primary text-white font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2">
+                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                Tambah ke Keranjang
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 2: Desk Stand -->
+        <div class="card-hover rounded-[24px] border border-white/[0.06] bg-[#0a0a0a] overflow-hidden group">
+          <div class="relative overflow-hidden bg-gradient-to-br from-[#0f0f0f] to-[#111] p-8 md:p-12 flex items-center justify-center">
+            <img src="https://z-cdn-media.chatglm.cn/files/f57f26e4-a97b-4dda-9147-6ff65a8b8ef0.png?auth_key=1879736567-2dda30b8348448cc9e0e0ef763468c8b-0-ca136c69b241726227e48cd1ee0cedd7" alt="Desk Stand Raket Padel" class="card-img w-full max-w-[360px] rounded-xl shadow-2xl" style="filter: brightness(0.95) contrast(1.05);">
+            <div class="absolute top-4 left-4 bg-[#00ffc4] text-black text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i> Trending
+            </div>
+            <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full border border-white/10">
+              ★ 4.9 (980)
+            </div>
+          </div>
+          <div class="p-6 md:p-8">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="text-xs text-[#00ffc4] font-semibold uppercase tracking-wider mb-1">Desk Stand</p>
+                <h3 class="text-xl font-semibold text-white">Desk Stand Raket Padel</h3>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold text-white">Rp 179<span class="text-lg">.000</span></p>
+                <p class="text-xs text-neutral-500 line-through">Rp 200.000</p>
+              </div>
+            </div>
+            <p class="text-sm text-neutral-400 mb-5 leading-relaxed">Display raket di meja kerja atau rak display. Base stabil anti-tipping, cocok untuk koleksi atau showcase toko.</p>
+
+            <!-- Color Selection -->
+            <div class="mb-5">
+              <p class="text-xs text-neutral-500 mb-2.5 uppercase tracking-wider font-medium">Pilih Warna</p>
+              <div class="flex flex-wrap gap-2.5" id="deskStandColors">
+                <button class="color-swatch active" style="background:#111; box-shadow: inset 0 -8px 12px rgba(255,255,255,0.15);" data-color="Black Glossy" data-product="deskstand" onclick="selectColor(this)" title="Black Glossy"></button>
+                <button class="color-swatch" style="background:#ffffff;" data-color="White" data-product="deskstand" onclick="selectColor(this)" title="White"></button>
+                <button class="color-swatch" style="background:#a8856c;" data-color="Wood" data-product="deskstand" onclick="selectColor(this)" title="Wood"></button>
+                <button class="color-swatch" style="background:#b8b8b8;" data-color="Light Grey" data-product="deskstand" onclick="selectColor(this)" title="Light Grey"></button>
+                <button class="color-swatch" style="background:#1a1a1a;" data-color="Hitam Doff" data-product="deskstand" onclick="selectColor(this)" title="Hitam Doff"></button>
+                <button class="color-swatch" style="background:#c2685a;" data-color="Coral Pink" data-product="deskstand" onclick="selectColor(this)" title="Coral Pink"></button>
+                <button class="color-swatch" style="background:#6b4c6e;" data-color="Black Purple" data-product="deskstand" onclick="selectColor(this)" title="Black Purple"></button>
+                <button class="color-swatch" style="background:#b87333;" data-color="Copper" data-product="deskstand" onclick="selectColor(this)" title="Copper"></button>
+                <button class="color-swatch" style="background: linear-gradient(135deg, #e0d5c8, #c4b5a3, #d8ccc0);" data-color="Marble" data-product="deskstand" onclick="selectColor(this)" title="Marble"></button>
+              </div>
+              <p class="text-xs text-neutral-500 mt-2">Dipilih: <span id="deskStandColorName" class="text-neutral-300">Black Glossy</span></p>
+            </div>
+
+            <!-- Quantity & Add to Cart -->
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 bg-white/[0.03] rounded-xl border border-white/[0.08] px-1 py-1">
+                <button class="qty-btn" onclick="changeQty('deskstand-qty', -1)">−</button>
+                <span id="deskstand-qty" class="w-8 text-center text-sm font-medium">1</span>
+                <button class="qty-btn" onclick="changeQty('deskstand-qty', 1)">+</button>
+              </div>
+              <button onclick="addToCart('Desk Stand Raket Padel', 129000, 'deskstand')" class="flex-1 btn-primary text-white font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2">
+                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                Tambah ke Keranjang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bundle CTA -->
+      <div class="mt-12 rounded-[24px] border border-[#00ffc4]/20 bg-gradient-to-r from-[#00ffc4]/5 via-transparent to-[#00ffc4]/5 p-8 md:p-12 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#00ffc4]/5 to-transparent mask-fade-x"></div>
+        <div class="relative">
+          <div class="inline-flex items-center gap-2 bg-[#00ffc4]/10 text-[#00ffc4] rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] mb-4">
+            <i data-lucide="gift" class="w-3 h-3"></i>
+            Bundle Hemat
+          </div>
+          <h3 class="text-2xl md:text-3xl font-semibold mb-3">Beli 2 Lebih Hemat!</h3>
+          <p class="text-neutral-400 mb-6 max-w-lg mx-auto">Ambil Wall Mount + Desk Stand sekaligus dan hemat <span class="text-[#00ffc4] font-semibold">Rp 25.000</span></p>
+          <div class="flex items-center justify-center gap-4 mb-6">
+            <span class="text-neutral-500 line-through text-lg">Rp 224.000</span>
+            <span class="text-3xl font-bold text-[#00ffc4]">Rp 199.000</span>
+          </div>
+          <button onclick="addBundleToCart()" class="btn-primary text-white font-medium px-10 py-4 rounded-xl text-base inline-flex items-center gap-2">
+            <i data-lucide="package" class="w-4 h-4"></i>
+            Tambah Bundle ke Keranjang
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Color Guide Section -->
+  <section id="colors" class="relative py-24 product-section">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Panduan <span class="bg-gradient-to-r from-[#00ffc4] to-[#047857] bg-clip-text text-transparent">Warna</span></h2>
+        <p class="text-neutral-400 text-lg max-w-2xl mx-auto">9 pilihan warna eksklusif yang diproduksi dengan teknologi 3D printing terbaik</p>
+      </div>
+
+      <div class="rounded-[32px] overflow-hidden border border-white/[0.08] bg-[#0a0a0a] shadow-[0_0_40px_rgba(0,255,196,0.05)]">
+        <img src="./asset/wallmount2.png" alt="Panduan Warna 3dulo" class="w-full">
+      </div>
+
+      <div class="grid grid-cols-3 md:grid-cols-9 gap-3 mt-8">
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-[#c2685a] mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">Coral Pink</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-[#a8856c] mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">Wood</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl mx-auto mb-2 border border-white/10" style="background: linear-gradient(135deg, #e0d5c8, #c4b5a3);"></div>
+          <p class="text-[10px] text-neutral-400">Marble</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-[#b8b8b8] mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">Light Grey</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-[#6b4c6e] mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">Black Purple</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl mx-auto mb-2 border border-white/10" style="background:#111; box-shadow: inset 0 -10px 15px rgba(255,255,255,0.15);"></div>
+          <p class="text-[10px] text-neutral-400">Black Glossy</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-white mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">White</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-[#b87333] mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">Copper</p>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square rounded-2xl bg-[#1a1a1a] mx-auto mb-2 border border-white/10"></div>
+          <p class="text-[10px] text-neutral-400">Hitam Doff</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="products" class="relative py-24 product-section">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Kenapa <span class="bg-gradient-to-r from-[#00ffc4] to-[#047857] bg-clip-text text-transparent">3dulo</span>?</h2>
+        <p class="text-neutral-400 text-lg">Kualitas yang beda dari yang lain</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 text-center group">
+          <div class="w-14 h-14 bg-[#00ffc4]/10 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(0,255,196,0.2)] transition-all duration-300">
+            <i data-lucide="printer" class="w-6 h-6 text-[#00ffc4]"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">3D Print Presisi</h3>
+          <p class="text-sm text-neutral-400 leading-relaxed">Menggunakan printer FDM industrial dengan toleransi ±0.2mm</p>
+        </div>
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 text-center group">
+          <div class="w-14 h-14 bg-[#00ffc4]/10 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(0,255,196,0.2)] transition-all duration-300">
+            <i data-lucide="shield-check" class="w-6 h-6 text-[#00ffc4]"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Material Premium</h3>
+          <p class="text-sm text-neutral-400 leading-relaxed">PLA+ berkualitas tinggi, kuat, tahan lama, dan ramah lingkungan</p>
+        </div>
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 text-center group">
+          <div class="w-14 h-14 bg-[#00ffc4]/10 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(0,255,196,0.2)] transition-all duration-300">
+            <i data-lucide="palette" class="w-6 h-6 text-[#00ffc4]"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">9 Warna Eksklusif</h3>
+          <p class="text-sm text-neutral-400 leading-relaxed">Dari klasik hitam doff hingga marble premium, semua tersedia</p>
+        </div>
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 text-center group">
+          <div class="w-14 h-14 bg-[#00ffc4]/10 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(0,255,196,0.2)] transition-all duration-300">
+            <i data-lucide="truck" class="w-6 h-6 text-[#00ffc4]"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Gratis Ongkir</h3>
+          <p class="text-sm text-neutral-400 leading-relaxed">Free ongkir ke seluruh Indonesia dengan packing aman & rapi</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section id="reviews" class="relative py-24 product-section">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Apa Kata <span class="bg-gradient-to-r from-[#00ffc4] to-[#047857] bg-clip-text text-transparent">Mereka</span></h2>
+        <p class="text-neutral-400 text-lg">Ribuan pelanggan puas dengan produk 3dulo</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-6">
+          <div class="flex items-center gap-1 mb-4">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="text-sm text-neutral-300 leading-relaxed mb-5">"Wall mount-nya keren banget! Pasang di kamar langsung estetik. Raket padel saya aman dan kelihatan premium. Recommended banget!"</p>
+          <div class="flex items-center gap-3">
+            <img src="https://picsum.photos/seed/user-rizki/80/80.jpg" alt="Rizki" class="w-10 h-10 rounded-full object-cover border border-white/10">
+            <div>
+              <p class="text-sm font-medium text-white">Rizki Pratama</p>
+              <p class="text-xs text-neutral-500">Jakarta — Wall Mount Black Glossy</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-6">
+          <div class="flex items-center gap-1 mb-4">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="text-sm text-neutral-300 leading-relaxed mb-5">"Beli desk stand warna wood, hasilnya premium banget kayak asli kayu. Padahal 3D print! Teman-teman di klub padel pada tanya beli dimana."</p>
+          <div class="flex items-center gap-3">
+            <img src="https://picsum.photos/seed/user-sarah/80/80.jpg" alt="Sarah" class="w-10 h-10 rounded-full object-cover border border-white/10">
+            <div>
+              <p class="text-sm font-medium text-white">Sarah Amelia</p>
+              <p class="text-xs text-neutral-500">Bandung — Desk Stand Wood</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-hover rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-6">
+          <div class="flex items-center gap-1 mb-4">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="text-sm text-neutral-300 leading-relaxed mb-5">"Sudah beli 3x, buat koleksi pribadi dan hadiah teman. Kualitas konsisten, packing rapi, pengiriman cepat. Best seller memang pantas!"</p>
+          <div class="flex items-center gap-3">
+            <img src="https://picsum.photos/seed/user-dimas/80/80.jpg" alt="Dimas" class="w-10 h-10 rounded-full object-cover border border-white/10">
+            <div>
+              <p class="text-sm font-medium text-white">Dimas Arya</p>
+              <p class="text-xs text-neutral-500">Surabaya — Bundle Pack</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="relative py-24 product-section">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-semibold tracking-tight mb-4">Frequently Asked<span class="bg-gradient-to-r from-[#00ffc4] to-[#047857] bg-clip-text text-transparent">Questions</span></h2>
+      </div>
+
+      <div class="space-y-3" id="faqContainer">
+        <div class="faq-item rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+            <span class="text-sm font-medium text-white pr-4">Apakah wall mount kuat menahan raket padel?</span>
+            <i data-lucide="plus" class="w-5 h-5 text-neutral-400 flex-shrink-0 faq-icon transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+            <p class="px-6 pb-6 text-sm text-neutral-400 leading-relaxed">Ya! Wall mount 3dulo didesain khusus untuk menahan beban raket padel (rata-rata 350-380g) dengan aman. Kami menggunakan material PLA+ yang memiliki kekuatan tarik tinggi. Cukup pasang dengan sekrup wall plug yang sudah disertakan di paket pembelian.</p>
+          </div>
+        </div>
+        <div class="faq-item rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+            <span class="text-sm font-medium text-white pr-4">Berapa lama proses produksi & pengiriman?</span>
+            <i data-lucide="plus" class="w-5 h-5 text-neutral-400 flex-shrink-0 faq-icon transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+            <p class="px-6 pb-6 text-sm text-neutral-400 leading-relaxed">Proses 3D print membutuhkan 1-2 hari kerja. Setelah itu, pengiriman via JNE/SiCepat estimasi 2-4 hari kerja untuk Jawa, dan 3-7 hari kerja untuk luar Jawa. Total estimasi 3-9 hari kerja tergantung lokasi.</p>
+          </div>
+        </div>
+        <div class="faq-item rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+            <span class="text-sm font-medium text-white pr-4">Apakah warna produk sama persis dengan foto?</span>
+            <i data-lucide="plus" class="w-5 h-5 text-neutral-400 flex-shrink-0 faq-icon transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+            <p class="px-6 pb-6 text-sm text-neutral-400 leading-relaxed">Warna bisa sedikit berbeda (±5-10%) karena perbedaan kalibrasi monitor dan batch produksi filament. Namun kami berusaha menjaga konsistensi sebaik mungkin. Untuk warna Marble, setiap produk memiliki pola unik karena sifat material filament marble.</p>
+          </div>
+        </div>
+        <div class="faq-item rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+            <span class="text-sm font-medium text-white pr-4">Apakah bisa custom warna atau desain?</span>
+            <i data-lucide="plus" class="w-5 h-5 text-neutral-400 flex-shrink-0 faq-icon transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+            <p class="px-6 pb-6 text-sm text-neutral-400 leading-relaxed">Saat ini kami menyediakan 9 warna standar. Untuk custom desain khusus (misalnya dengan logo klub atau nama), silakan hubungi kami via WhatsApp. Kami terbuka untuk permintaan custom dengan minimum order 10 pcs.</p>
+          </div>
+        </div>
+        <div class="faq-item rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-6 text-left">
+            <span class="text-sm font-medium text-white pr-4">Apa yang termasuk di dalam paket pembelian?</span>
+            <i data-lucide="plus" class="w-5 h-5 text-neutral-400 flex-shrink-0 faq-icon transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+            <p class="px-6 pb-6 text-sm text-neutral-400 leading-relaxed"><strong>Wall Mount:</strong> 1x wall mount holder, 2x sekrup, 2x wall plug, dan panduan instalasi.<br><strong>Desk Stand:</strong> 1x desk stand base + holder, dan panduan perakitan. Semua produk dikemas dengan bubble wrap tebal dan kardus khusus.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="relative py-24 product-section">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <div class="rounded-[32px] border border-white/[0.08] bg-gradient-to-b from-[#0a0a0a] to-[#111] p-12 md:p-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#00ffc4]/5 via-transparent to-[#047857]/5"></div>
+        <div class="relative">
+          <div class="w-20 h-20 bg-[#00ffc4]/10 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(0,255,196,0.15)]">
+            <i data-lucide="zap" class="w-10 h-10 text-[#00ffc4]"></i>
+          </div>
+          <h2 class="text-3xl md:text-4xl font-semibold tracking-tight mb-4">Upgrade Display Raket Kamu</h2>
+          <p class="text-neutral-400 text-lg mb-8 max-w-lg mx-auto">Bergabung dengan 2,500+ pemain padel yang sudah mempercayakan aksesoris raket mereka ke 3dulo.</p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a href="#bestseller" class="btn-primary text-white font-medium px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+              Belanja Sekarang
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="https://wa.me/6285939780708" target="_blank" class="btn-glass text-white font-medium px-8 py-4 rounded-xl text-base inline-flex items-center gap-2">
+              <i data-lucide="message-circle" class="w-4 h-4 text-green-400"></i>
+              Chat WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/[0.05] bg-[#030303]">
+    <div class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid md:grid-cols-4 gap-12">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[#047857] to-[#059669] flex items-center justify-center shadow-[0_0_20px_rgba(4,120,87,0.4)]">
+              <span class="text-white font-bold text-sm">3D</span>
+            </div>
+            <span class="text-xl font-bold tracking-tight">3dulo</span>
+          </div>
+          <p class="text-sm text-neutral-500 leading-relaxed max-w-sm mb-6">Brand aksesoris raket padel premium dengan teknologi 3D printing. Desain eksklusif, kualitas terjamin, dikirim dari Indonesia.</p>
+          <div class="flex items-center gap-3">
+            <a href="https://www.instagram.com/3dulo/" class="w-10 h-10 rounded-xl btn-glass flex items-center justify-center hover:border-[#00ffc4]/30 transition-colors">
+              <img src="./asset/ig.jpg" class="w-4 h-4 text-neutral-400">
+            </a>
+            <!-- <a href="#" class="w-10 h-10 rounded-xl btn-glass flex items-center justify-center hover:border-[#00ffc4]/30 transition-colors">
+              <i data-lucide="twitter" class="w-4 h-4 text-neutral-400"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-xl btn-glass flex items-center justify-center hover:border-[#00ffc4]/30 transition-colors">
+              <i data-lucide="youtube" class="w-4 h-4 text-neutral-400"></i>
+            </a> -->
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Produk</h4>
+          <ul class="space-y-3">
+            <li><a href="#bestseller" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Wall Mount</a></li>
+            <li><a href="#bestseller" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Desk Stand</a></li>
+            <li><a href="#colors" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Panduan Warna</a></li>
+            <li><a href="#" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Custom Order</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Bantuan</h4>
+          <ul class="space-y-3">
+            <li><a href="#faq" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">FAQ</a></li>
+            <li><a href="#" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Panduan Instalasi</a></li>
+            <li><a href="#" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Kebijakan Pengembalian</a></li>
+            <li><a href="https://wa.me/6285939780708" class="text-sm text-neutral-500 hover:text-[#00ffc4] transition-colors">Hubungi Kami</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/[0.05] mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-neutral-600">© 2025 3dulo. All rights reserved. Made in Indonesia with 🇮🇩</p>
+        <div class="flex items-center gap-4">
+          <span class="text-xs text-neutral-600 flex items-center gap-1.5"><i data-lucide="lock" class="w-3 h-3"></i> Secure Payment</span>
+          <span class="text-xs text-neutral-600 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3 h-3"></i> Quality Guarantee</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Float Button -->
+  <a href="https://wa.me/6285939780708" target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-400 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.4)] transition-all hover:scale-110 group">
+    <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
+    <span class="absolute right-full mr-3 bg-[#1A1D21] text-white text-xs font-medium px-3 py-2 rounded-lg border border-white/10 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Chat via WhatsApp</span>
+  </a>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // ===== CART SYSTEM =====
+    let cart = [];
+
+    function getSelectedColor(productId) {
+      const container = productId === 'wallmount' ? 'wallMountColors' : 'deskStandColors';
+      const active = document.querySelector(`#${container} .color-swatch.active`);
+      return active ? active.dataset.color : 'Default';
+    }
+
+    function getQty(productId) {
+      return parseInt(document.getElementById(`${productId}-qty`).textContent);
+    }
+
+    function changeQty(id, delta) {
+      const el = document.getElementById(id);
+      let val = parseInt(el.textContent) + delta;
+      if (val < 1) val = 1;
+      if (val > 99) val = 99;
+      el.textContent = val;
+    }
+
+    function addToCart(name, price, productId) {
+      const color = getSelectedColor(productId);
+      const qty = getQty(productId);
+      const existingIndex = cart.findIndex(item => item.name === name && item.color === color);
+
+      if (existingIndex > -1) {
+        cart[existingIndex].qty += qty;
+      } else {
+        cart.push({ name, price, color, qty, productId });
+      }
+
+      // Reset qty
+      document.getElementById(`${productId}-qty`).textContent = '1';
+
+      updateCartUI();
+      showToast(`${name} (${color}) × ${qty} ditambahkan!`);
+    }
+
+    function addBundleToCart() {
+      const wmColor = getSelectedColor('wallmount');
+      const dsColor = getSelectedColor('deskstand');
+
+      // Add wall mount
+      const wmExist = cart.findIndex(i => i.name === 'Wall Mount Hanger Raket Padel' && i.color === wmColor);
+      if (wmExist > -1) cart[wmExist].qty += 1;
+      else cart.push({ name: 'Wall Mount Hanger Raket Padel', price: 89000, color: wmColor, qty: 1, productId: 'wallmount' });
+
+      // Add desk stand
+      const dsExist = cart.findIndex(i => i.name === 'Desk Stand Raket Padel' && i.color === dsColor);
+      if (dsExist > -1) cart[dsExist].qty += 1;
+      else cart.push({ name: 'Desk Stand Raket Padel', price: 129000, color: dsColor, qty: 1, productId: 'deskstand' });
+
+      updateCartUI();
+      showToast('Bundle Wall Mount + Desk Stand ditambahkan! Hemat Rp 40.000 🎉');
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function updateCartItemQty(index, delta) {
+      cart[index].qty += delta;
+      if (cart[index].qty < 1) cart[index].qty = 1;
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const badge = document.getElementById('cartBadge');
+      const panelCount = document.getElementById('cartPanelCount');
+      const cartItemsEl = document.getElementById('cartItems');
+      const emptyCart = document.getElementById('emptyCart');
+      const cartFooter = document.getElementById('cartFooter');
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      // Check if it's a bundle (both products present with qty 1 each)
+      const hasBundle = cart.some(i => i.name === 'Wall Mount Hanger Raket Padel') && cart.some(i => i.name === 'Desk Stand Raket Padel');
+      const bundleDiscount = hasBundle ? 40000 : 0;
+      const total = Math.max(0, subtotal - bundleDiscount);
+
+      // Badge
+      if (totalCount > 0) {
+        badge.classList.remove('hidden');
+        badge.textContent = totalCount;
+        badge.classList.add('badge-bounce');
+        setTimeout(() => badge.classList.remove('badge-bounce'), 300);
+      } else {
+        badge.classList.add('hidden');
+      }
+      panelCount.textContent = totalCount;
+
+      // Cart items
+      if (cart.length === 0) {
+        emptyCart.classList.remove('hidden');
+        cartFooter.classList.add('hidden');
+        // Remove all item elements
+        cartItemsEl.querySelectorAll('.cart-item').forEach(el => el.remove());
+        return;
+      }
+
+      emptyCart.classList.add('hidden');
+      cartFooter.classList.remove('hidden');
+
+      // Remove old items
+      cartItemsEl.querySelectorAll('.cart-item').forEach(el => el.remove());
+
+      // Render items
+      cart.forEach((item, index) => {
+        const colorMap = {
+          'Hitam Doff': '#1a1a1a', 'Black Glossy': '#111', 'White': '#ffffff',
+          'Light Grey': '#b8b8b8', 'Wood': '#a8856c', 'Coral Pink': '#c2685a',
+          'Black Purple': '#6b4c6e', 'Copper': '#b87333', 'Marble': '#d8ccc0'
+        };
+        const colorHex = colorMap[item.color] || '#666';
+        const borderClass = item.color === 'White' ? 'border border-neutral-600' : '';
+
+        const div = document.createElement('div');
+        div.className = 'cart-item flex gap-4 bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]';
+        div.innerHTML = `
+          <div class="w-16 h-16 rounded-xl flex-shrink-0 ${borderClass}" style="background:${colorHex};"></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-white truncate">${item.name}</p>
+            <p class="text-xs text-neutral-500 mt-0.5">${item.color}</p>
+            <div class="flex items-center justify-between mt-2">
+              <div class="flex items-center gap-1.5">
+                <button onclick="updateCartItemQty(${index}, -1)" class="w-6 h-6 flex items-center justify-center rounded bg-white/5 text-xs hover:bg-white/10 transition-colors">−</button>
+                <span class="text-xs font-medium w-5 text-center">${item.qty}</span>
+                <button onclick="updateCartItemQty(${index}, 1)" class="w-6 h-6 flex items-center justify-center rounded bg-white/5 text-xs hover:bg-white/10 transition-colors">+</button>
+              </div>
+              <p class="text-sm font-semibold text-[#00ffc4]">Rp ${item.price * item.qty.toLocaleString('id-ID')}</p>
+            </div>
+          </div>
+          <button onclick="removeFromCart(${index})" class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-500/10 transition-colors group">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-neutral-500 group-hover:text-red-400 transition-colors"></i>
+          </button>
+        `;
+        cartItemsEl.appendChild(div);
+      });
+
+      // Update totals
+      document.getElementById('cartSubtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+      if (bundleDiscount > 0) {
+        document.getElementById('cartSubtotal').innerHTML = `Rp ${subtotal.toLocaleString('id-ID')} <span class="text-[#00ffc4] text-xs">(-Rp ${bundleDiscount.toLocaleString('id-ID')})</span>`;
+      }
+      document.getElementById('cartTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+
+      // Re-init icons for new elements
+      lucide.createIcons();
+    }
+
+    function toggleCart() {
+      const panel = document.getElementById('cartPanel');
+      const overlay = document.getElementById('cartOverlay');
+      panel.classList.toggle('open');
+      overlay.classList.toggle('open');
+      document.body.style.overflow = panel.classList.contains('open') ? 'hidden' : '';
+    }
+
+    function checkout() {
+      if (cart.length === 0) return;
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      const hasBundle = cart.some(i => i.name === 'Wall Mount Hanger Raket Padel') && cart.some(i => i.name === 'Desk Stand Raket Padel');
+      const bundleDiscount = hasBundle ? 40000 : 0;
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const total = Math.max(0, subtotal - bundleDiscount);
+
+      let msg = `Halo 3dulo! 👋\n\nSaya ingin order:\n`;
+      cart.forEach(item => {
+        msg += `• ${item.name} (${item.color}) × ${item.qty} = Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
+      });
+      if (bundleDiscount > 0) {
+        msg += `\n🎉 Bundle Discount: -Rp ${bundleDiscount.toLocaleString('id-ID')}\n`;
+      }
+      msg += `\n💰 Total: Rp ${total.toLocaleString('id-ID')}\n\nMohon info lanjutan terima kasih!`;
+
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/6285939780708?text=${encoded}`, '_blank');
+    }
+
+    // ===== COLOR SELECTION =====
+    function selectColor(el) {
+      const container = el.parentElement;
+      container.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+
+      const product = el.dataset.product;
+      const colorName = el.dataset.color;
+      if (product === 'wallmount') {
+        document.getElementById('wallMountColorName').textContent = colorName;
+      } else {
+        document.getElementById('deskStandColorName').textContent = colorName;
+      }
+    }
+
+    // ===== TOAST NOTIFICATIONS =====
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <div class="w-8 h-8 bg-[#00ffc4]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i data-lucide="check" class="w-4 h-4 text-[#00ffc4]"></i>
+        </div>
+        <p class="text-sm text-neutral-200 flex-1">${message}</p>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ===== FAQ TOGGLE =====
+    function toggleFaq(btn) {
+      const item = btn.parentElement;
+      const answer = item.querySelector('.faq-answer');
+      const icon = btn.querySelector('.faq-icon');
+      const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.style.maxHeight = '0px');
+      document.querySelectorAll('.faq-icon').forEach(i => i.style.transform = 'rotate(0deg)');
+
+      if (!isOpen) {
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        icon.style.transform = 'rotate(45deg)';
+      }
+    }
+
+    // ===== MOBILE MENU =====
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    // ===== SCROLL ANIMATIONS =====
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.product-section').forEach(el => observer.observe(el));
+
+    // ===== SMOOTH SCROLL =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Close cart on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const panel = document.getElementById('cartPanel');
+        if (panel.classList.contains('open')) toggleCart();
+      }
+    });
+  </script>
+</body>
+</html>
